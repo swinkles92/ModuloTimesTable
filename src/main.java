@@ -1,12 +1,15 @@
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
 public class main extends Application {
@@ -33,13 +36,27 @@ public class main extends Application {
         root.setLeft(vbox);
         vbox.getChildren().addAll(startBtn, pauseBtn, colorMenu);
 
-        Circle circle = new Circle(100,100,100);
-        root.setCenter(circle);
-        colorMenu.setOnAction(event -> {
-            colorAction(colorMenu.getValue().toString(), circle);
-        });
+        Circle circle = new Circle(250,250,250);
+        circle.setFill(Color.PEACHPUFF);
 
-        primaryStage.setScene(new Scene(root, 500, 500));
+        Group lineGroup = new Group();
+        for(int i = 0; i < 10; i++) {
+            double degI = Math.toDegrees(i);
+            Line line = new Line(250 * Math.cos(degI), 250 * Math.sin(degI),
+                    250 * Math.cos(degI + 180),
+                    250 * Math.sin(degI + 180));
+            line.setStroke(Color.CRIMSON);
+            lineGroup.getChildren().add(line);
+        }
+
+        StackPane stack = new StackPane();
+        stack.getChildren().addAll(circle, lineGroup);
+        root.setCenter(stack);
+        /*colorMenu.setOnAction(event -> {
+            colorAction(colorMenu.getValue().toString(), circle);
+        });*/
+
+        primaryStage.setScene(new Scene(root, 750, 750));
         primaryStage.show();
     }
     private void colorAction(String listItem, Circle circle) {
