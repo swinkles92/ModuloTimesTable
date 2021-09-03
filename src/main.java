@@ -39,12 +39,14 @@ public class main extends Application {
         Circle circle = new Circle(250,250,250);
         circle.setFill(Color.PEACHPUFF);
 
+        double degI = 360 / 36;
         Group lineGroup = new Group();
-        for(int i = 0; i < 10; i++) {
-            double degI = Math.toDegrees(i);
-            Line line = new Line(250 * Math.cos(degI), 250 * Math.sin(degI),
-                    250 * Math.cos(degI + 180),
-                    250 * Math.sin(degI + 180));
+        for(int i = 0; i < 36; i++) {
+            double startDeg = Math.toRadians(i * degI);
+            double endDeg = Math.toRadians((2 * i) * degI);
+            Line line = new Line(250 * Math.cos(startDeg), 250 * Math.sin(startDeg),
+                    250 * Math.cos(endDeg),
+                    250 * Math.sin(endDeg));
             line.setStroke(Color.CRIMSON);
             lineGroup.getChildren().add(line);
         }
