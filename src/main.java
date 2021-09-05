@@ -1,3 +1,4 @@
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
@@ -39,18 +40,36 @@ public class main extends Application {
         Circle circle = new Circle(250,250,250);
         circle.setFill(Color.PEACHPUFF);
 
-        double degI = 360 / 36;
         Group lineGroup = new Group();
-        for(int i = 0; i < 36; i++) {
-            double startDeg = Math.toRadians(i * degI);
-            double endDeg = Math.toRadians((2 * i) * degI);
-            Line line = new Line(250 * Math.cos(startDeg), 250 * Math.sin(startDeg),
-                    250 * Math.cos(endDeg),
-                    250 * Math.sin(endDeg));
-            line.setStroke(Color.CRIMSON);
-            lineGroup.getChildren().add(line);
-        }
-
+        int testNodes = 100;
+        double degI = 360 / testNodes;
+        AnimationTimer timer = new AnimationTimer() {
+            int counter = 0;
+            @Override
+            public void handle(long now) {
+                double startDeg = Math.toRadians(counter * degI);
+                double endDeg = Math.toRadians((4 * counter) * degI);
+                Line line = new Line(
+                        250 * Math.cos(startDeg),
+                        250 * Math.sin(startDeg),
+                        250 * Math.cos(endDeg),
+                        250 * Math.sin(endDeg));
+                String colorStr;
+                if(colorMenu.getValue() != null) {
+                    colorStr = colorMenu.getValue().toString();
+                }
+                else colorStr = Color.BLACK.toString();
+                line.setStroke(Color.valueOf(colorStr));
+                lineGroup.getChildren().add(line);
+                counter++;
+            }
+        };
+        startBtn.setOnAction(event -> {
+            timer.start();
+        });
+        pauseBtn.setOnAction(event -> {
+            timer.stop();
+        });
         StackPane stack = new StackPane();
         stack.getChildren().addAll(circle, lineGroup);
         root.setCenter(stack);
