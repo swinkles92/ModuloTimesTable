@@ -32,27 +32,36 @@ public class main extends Application {
         timesTable.setTimesTable(0);
         NumNodes numNodes = new NumNodes();
         numNodes.setNumNodes(1);
+        DelayTimer delayTimer = new DelayTimer();
+        delayTimer.setDelayTimer(250_000_000);
 
         Group lineGroup = new Group();
         AnimationTimer timer = new AnimationTimer() {
+            private long lastUpdate = 0;
             @Override
             public void handle(long now) {
-                double degPerNode = 360 / numNodes.getNumNodes();
-                for(int i = 0; i < numNodes.getNumNodes(); i++) {
-                    double startDeg = Math.toRadians(i * degPerNode);
-                    double endDeg = Math.toRadians((timesTable.getTimesTable() * i) * degPerNode);
-                    Line line = new Line(
-                            (SIZE / 2) * Math.cos(startDeg),
-                            (SIZE / 2) * Math.sin(startDeg),
-                            (SIZE / 2) * Math.cos(endDeg),
-                            (SIZE / 2) * Math.sin(endDeg));
-                    String colorStr;
-                    if(colorMenu.getValue() != null) {
-                        colorStr = colorMenu.getValue().toString();
+                if(numNodes.getNumNodes() <= 360
+                        && now - lastUpdate >= delayTimer.getDelayTimer()) {
+                    lineGroup.getChildren().clear();
+                    double degPerNode = 360 / numNodes.getNumNodes();
+                    for(int i = 0; i < numNodes.getNumNodes(); i++) {
+                        double startDeg = Math.toRadians(i * degPerNode);
+                        double endDeg = Math.toRadians((timesTable.getTimesTable() * i) * degPerNode);
+                        Line line = new Line(
+                                (SIZE / 2) * Math.cos(startDeg),
+                                (SIZE / 2) * Math.sin(startDeg),
+                                (SIZE / 2) * Math.cos(endDeg),
+                                (SIZE / 2) * Math.sin(endDeg));
+                        String colorStr;
+                        if(colorMenu.getValue() != null) {
+                            colorStr = colorMenu.getValue().toString();
+                        }
+                        else colorStr = Color.BLACK.toString();
+                        line.setStroke(Color.valueOf(colorStr));
+                        lineGroup.getChildren().add(line);
                     }
-                    else colorStr = Color.BLACK.toString();
-                    line.setStroke(Color.valueOf(colorStr));
-                    lineGroup.getChildren().add(line);
+                    //numNodes.setNumNodes(numNodes.getNumNodes() + 1);
+                    lastUpdate = now;
                 }
             }
         };
@@ -103,6 +112,21 @@ public class main extends Application {
                 }
         );
 
+        Label delayLabel = new Label("Delay by (ms): " + 250);
+        Slider delaySlider = new Slider(10, 500, 250);
+        delaySlider.setShowTickLabels(true);
+        delaySlider.setShowTickMarks(true);
+        delaySlider.valueProperty().addListener(
+                new ChangeListener<Number>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Number> observable,
+                                        Number oldValue, Number newValue) {
+                        delayTimer.setDelayTimer(newValue.longValue() * (10^6));
+                        delayLabel.setText("Delay by (ms): " + newValue.longValue());
+                    }
+                }
+        );
+
         Label timesJumpLabel = new Label("Jump to Times Table: ");
         TextField timesJumpField = new TextField();
         Label nodesJumpLabel = new Label("Jump to Number Nodes: ");
@@ -124,13 +148,44 @@ public class main extends Application {
             timer.start();
         });
 
+        Label myFavsLabel = new Label("My Favorites: ");
+        ComboBox myFavorites = new ComboBox();
+        myFavorites.getItems().addAll("182,360", "127,183", "145,180", "307,168",
+                "190,360", "252,70", "87,40", "242,360", "287,360", "52,360");
+        myFavorites.setOnAction(event -> {
+            lineGroup.getChildren().clear();
+            String favSelect = (String) myFavorites.getValue();
+            String delimiter = ",";
+            String[] tokens = favSelect.split(delimiter);
+            int favTimesTable = Integer.parseInt(tokens[0]);
+            int favNumNodes = Integer.parseInt(tokens[1]);
+            double degPerNode = 360 / favNumNodes;
+            for(int i = 0; i < favNumNodes; i++) {
+                double startDeg = Math.toRadians(i * degPerNode);
+                double endDeg = Math.toRadians((favTimesTable * i) * degPerNode);
+                Line line = new Line(
+                        (SIZE / 2) * Math.cos(startDeg),
+                        (SIZE / 2) * Math.sin(startDeg),
+                        (SIZE / 2) * Math.cos(endDeg),
+                        (SIZE / 2) * Math.sin(endDeg));
+                String colorStr;
+                if(colorMenu.getValue() != null) {
+                    colorStr = colorMenu.getValue().toString();
+                }
+                else colorStr = Color.BLACK.toString();
+                line.setStroke(Color.valueOf(colorStr));
+                lineGroup.getChildren().add(line);
+            }
+        });
+
         VBox vbox = new VBox();
         vbox.setPadding(new Insets(10));
         vbox.setSpacing(8);
         root.setLeft(vbox);
         vbox.getChildren().addAll(startBox, colorMenu, timesLabel, timesSlider,
-                nodeLabel, nodeSlider, timesJumpLabel, timesJumpField,
-                nodesJumpLabel, nodesJumpField, jumpBtn);
+                nodeLabel, nodeSlider, delayLabel, delaySlider,
+                timesJumpLabel, timesJumpField, nodesJumpLabel, nodesJumpField,
+                jumpBtn, myFavsLabel, myFavorites);
 
         Circle circle = new Circle(250,250,250);
         circle.setFill(Color.GHOSTWHITE);
@@ -144,20 +199,17 @@ public class main extends Application {
     }
     public class TimesTable {
         private int timesTable;
-        public int getTimesTable() {
-            return timesTable;
-        }
-        public void setTimesTable(int newTimesTable) {
-            this.timesTable = newTimesTable;
-        }
+        public int getTimesTable() { return timesTable; }
+        public void setTimesTable(int newTimesTable) { this.timesTable = newTimesTable; }
     }
     public class NumNodes {
         private int numNodes;
-        public int getNumNodes() {
-            return numNodes;
-        }
-        public void setNumNodes(int newNumNodes) {
-            this.numNodes = newNumNodes;
-        }
+        public int getNumNodes() { return numNodes; }
+        public void setNumNodes(int newNumNodes) { this.numNodes = newNumNodes; }
+    }
+    public class DelayTimer {
+        private long delayTimer;
+        public long getDelayTimer() { return delayTimer; }
+        public void setDelayTimer(long newTimer) { this.delayTimer = newTimer; }
     }
 }
