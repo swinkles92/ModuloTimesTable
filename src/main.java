@@ -28,6 +28,7 @@ public class main extends Application {
         colorMenu.getItems().addAll("Blue", "Crimson", "Goldenrod", "Green",
                 "Indigo", "Maroon", "Orange", "Peru", "Salmon", "Teal");
 
+        // Creates and instantiates variables necessary for creation of the diagram.
         TimesTable timesTable = new TimesTable();
         timesTable.setTimesTable(0);
         NumNodes numNodes = new NumNodes();
@@ -60,7 +61,7 @@ public class main extends Application {
                         line.setStroke(Color.valueOf(colorStr));
                         lineGroup.getChildren().add(line);
                     }
-                    //numNodes.setNumNodes(numNodes.getNumNodes() + 1);
+                    numNodes.setNumNodes(numNodes.getNumNodes() + 1);
                     lastUpdate = now;
                 }
             }
